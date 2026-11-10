@@ -12,7 +12,7 @@ index 3ba2fd4..dcbd143 100644
  extern void sweet_hid_key(int key, int down);
  
 +#if defined(DREAMLTE)
-+#define A5_ALIVE_PA 0x164b0000u            /* Exynos 8895 pinctrl ALIVE */
++#define A5_ALIVE_PA 0x14050000u            /* Exynos 9810 pinctrl ALIVE (0x14050000) */
 +#else
  #define A5_ALIVE_PA 0x139b0000u
 +#endif
@@ -112,7 +112,7 @@ index 7ba309b..ba647a8 100644
 + */
 +#define S8TS_HSI2C_PA           0x108e0000u
 +#define S8BAT_HSI2C_PA          0x10970000u
-+#define S8TS_ALIVE_PA           0x164b0000u
++#define S8TS_ALIVE_PA           0x14050000u
 +#define S8TS_GPA1_DAT           0x44u
 +#define S8TS_ADDR               0x48u
 +#define S8BAT_FG                0x36u
@@ -942,7 +942,7 @@ index 356ff51..ec6b9da 100644
 +sweet_fb_wait_frame_done(void)
 +{
 +	if (sweet_fb_decon == 0) {
-+		sweet_fb_decon = ml_io_map(0x12860000, 0x1000);
++		sweet_fb_decon = ml_io_map(0x16030000, 0x1000);
 +		if (sweet_fb_decon == 0) {
 +			return;
 +		}
@@ -1477,7 +1477,7 @@ index e6718d4..b6f812d 100644
 +#define A5_FB_STRIDE                  5760        /* bytes per row */
 +#define A5_FB_2M_BLOCKS               9           /* 1440*2960*4 bytes */
 +#define A5_ENTRY_MARKER_PHYS          0x920ff000  /* slot in the loader's pstore text */
-+#define A5_BOOT_MPIDR                 0x100       /* first Cortex-A53 */
++#define A5_BOOT_MPIDR                 0x0         /* Exynos 9810: first Cortex-A55 (little cluster MPIDR 0..3) */
 +#define A5_KEYS_DEFAULT               1           /* S8 keys: GPA0/GPA2 */
 +#define A5_TOUCH_DEFAULT              0           /* A5 ZT7538 path absent */
 +#define A5_KLOG_PHYS                  0x92180000  /* TWRP ramoops pmsg zone */
