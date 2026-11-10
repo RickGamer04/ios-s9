@@ -1,0 +1,55 @@
+--- a/bsd/dev/sweet_ufs.c
++++ b/bsd/dev/sweet_ufs.c
+@@ -245,6 +245,7 @@
+ 	*(volatile uint32_t *)(su.vs_regs + VS_UTRL_NEXUS_TYPE) |= 1;  /* slot 0: SCSI */
+ #endif
+ 	ufs_wr(REG_UTRLDBR, 1);
++	printf("SWEET UFS Ts: cmd 0x%02x doorbell rung\n", cdb[0]);
+ 	uint64_t deadline;
+ 	nanoseconds_to_absolutetime(CMD_TIMEOUT_NS, &deadline);
+ 	deadline += mach_absolute_time();
+@@ -657,11 +658,14 @@
+ 	PE_parse_boot_argn("ufswait", &wait, sizeof(wait));
+ 	su.cache = (cache == 1);
+ 	su.wait = (wait == 1);
++	printf("SWEET UFS T1: reg 0x%lx+0x%lx vs 0x%lx+0x%lx\n", (unsigned long)reg[0],
++	    (unsigned long)reg[1], (unsigned long)reg[2], (unsigned long)reg[3]);
+ 
+ 	su.regs = ml_io_map(reg[0], reg[1]);
+ #if defined(EXYNOS_UFS)
+ 	su.vs_regs = ml_io_map(reg[2], reg[3]);
+ #endif
++	printf("SWEET UFS T2: mapped %p %p\n", (void *)su.regs, (void *)su.vs_regs);
+ 	if (kmem_alloc_contig(kernel_map, &su.dma, DMA_SIZE, PAGE_MASK, 0, 0,
+ 	    KMA_DATA | KMA_ZERO | KMA_PERMANENT, VM_KERN_MEMORY_IOKIT) != KERN_SUCCESS) {
+ 		printf("SWEET UFS: no contiguous DMA memory\n");
+@@ -674,9 +678,11 @@
+ 	su.dma_pa = ptoa_64(pn);
+ 	su.lun = 0;
+ 	su.secsize = DEV_BSIZE;
++	printf("SWEET UFS T3: DMA va %p pa 0x%llx\n", (void *)su.dma, su.dma_pa);
+ 
+ 	lck_mtx_lock(&sweet_ufs_lock);
+ 	error = ufs_take_over_host();
++	printf("SWEET UFS T4: take over: %d (hcs 0x%x)\n", error, ufs_rd(REG_HCS));
+ #if defined(EXYNOS_UFS)
+ 	if (!error) {
+ 		static const uint8_t ssu_active[6] = { 0x1b, 0, 0, 0, 0x10, 0 };
+@@ -693,7 +699,9 @@
+ 		}
+ 	}
+ 	if (!error) {
++		printf("SWEET UFS T5: TEST UNIT READY done: %d\n", error);
+ 		error = ufs_find_partition(want);
++		printf("SWEET UFS T6: find partition: %d\n", error);
+ 	}
+ 	lck_mtx_unlock(&sweet_ufs_lock);
+ 	if (error) {
+@@ -876,6 +884,7 @@
+ int
+ sweet_ufs_rootdev(dev_t *dev)
+ {
++	printf("SWEET UFS T0: rootdev called (ready %d)\n", (int)su.ready);
+ 	if (!su.ready) {
+ 		int error = sweet_ufs_init();
+ 		if (error) {
