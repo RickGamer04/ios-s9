@@ -14,3 +14,10 @@ shim/a5xelte/out4k/
 shim/a5xelte/outxnu/
 shim/dreamlte/out/
 logs/
+out/
+research/
+backup/
+dtb/
+*.dtb
+*.dts
+*.img
